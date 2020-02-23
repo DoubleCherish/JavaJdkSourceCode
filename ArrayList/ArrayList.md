@@ -4,7 +4,7 @@
 
 ​		1、先记录下ArrayList的类继承关系图
 
-
+![relation](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/ArrayList/relation.png)
 
 ​		2、下面记录下ArrayList所实现接口中的三个标签接口，大部分人只熟悉第一个标签接口
 
