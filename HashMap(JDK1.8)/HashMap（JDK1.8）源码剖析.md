@@ -10,11 +10,11 @@
 
 ##### 1、HashMap的继承、实现结构
 
-![]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/tree/master/HashMap(JDK1.8)/image/HashMap.png)
 
 ​		以上就是HashMap的继承结构图，相对来说是比较简单的结构。下面是HashMap的概念图。
 
-![]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/tree/master/HashMap(JDK1.8)/image/table.png)
 
 ##### 2、HashMap的构造函数们及属性们
 
@@ -138,7 +138,7 @@ static final int hash(Object key) {
 }
 ```
 
-![]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/tree/master/HashMap(JDK1.8)/image/hashcode_or.png)
 
 ​		HashMap使用key的hashcode和key的hashcode绝对右移16位做异或运算后作为key新的hash值是为了减少key的碰撞做的优化，将高位数据移动到地位参与运算。
 
@@ -159,7 +159,7 @@ static final int tableSizeFor(int cap) {
 
 图示如下：
 
-![]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/tree/master/HashMap(JDK1.8)/image/tableSize2.png)
 
 ###### 3.4 putVal(...args)
 
@@ -236,7 +236,7 @@ putVal(int hash, K key, V value, boolean onlyIfAbsent,boolean evict){
 
 ​		① `i = (n - 1) & hash` 这个等式相当于` i = hash % n`，但是前者效率更高，HashMap就是为了高效所以做到细节优化，**注** ：上面等式成立的前提是 n 必须是 2 的整数次幂。
 
-​			![]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/tree/master/HashMap(JDK1.8)/image/&&.png)
 
 ​		② onlyIfAbsent这个标志为true时候，若key所对应的值已经存在，那就不会使用新value覆盖旧value。若为false时候，会使用新value覆盖旧的value
 
@@ -466,7 +466,7 @@ final Node<K,V> removeNode(int hash, Object key, Object value,
 
 ​			① 我起初第一次看代码时候不理解` if ((e.hash & oldCap) == 0) `这个判断的意思，经过计算后就显而易见，举例如下图。
 
-![]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/tree/master/HashMap(JDK1.8)/image/e_hash&oldCap.png)
 
 **总结**:
 
