@@ -12,7 +12,7 @@
 
 ##### 1、ReetrantLock和Sync的继承结构
 
-![]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/ReetrantLock/images/ReentrantLock.png)
 
 ​		上图就是ReetrantLock和Sync的继承结构及关系，ReetrantLock内部有一个成员变量Sync，Sync又继承自AQS（AbstractQueuedSynchronizer）。ReetrantLock内部同时也有两个内部类FairSync和NonfairSync（都是Sync的子类），两个类内部只有两个方法，都是重写了父类的方法，分别是lock()和tryAcquire()。
 
@@ -49,7 +49,7 @@ private final Sync sync;
 
   ​		AQS使用队列来管理等待锁的线程，内部类似一个FIFO队列，每一个节点使用Node来表示。结构如下图所示。
 
-  ![]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/ReetrantLock/images/AQS.png)
 
 ```java
 // AQS下属性为同步器的核心属性
@@ -113,6 +113,8 @@ public class Test{
 
 ###### 4.1 加锁过程
 
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/ReetrantLock/images/addLock.png)
+
 ​		① 先调用ReetrantLock.lock()方法，这个方法内部调用了属性变量sync的lock方法
 
 ```java
@@ -127,8 +129,6 @@ public void lock() {
 ​	 下面这个方法第一个if条件尝试获取锁，在这里获取锁就是使用 CAS 机制将 AQS 类中的 state 属性变量从 0 变为 1 （ReentrantLock中的同步器（Sync）的state属性为0 时候表示无锁，大于 0 时候表示加锁状态），如果修改成功则表示获取到锁，然后调用`AbstractOwnableSynchronizer.setExclusiveOwnerThread(Thread owner)`方法设置获取到锁的线程。
 
 ​	 如果获取锁失败则进入else代码，执行acquire(1)。
-
-![流程图]()
 
 ```java
 // NonfairSync.lock()方法
@@ -182,7 +182,7 @@ final boolean nonfairTryAcquire(int acquires) {
 
 ​		⑤ 调用addWaiter(Node)方法。方法的简介为将当前线程以给定模式加入队列，此处的Node参数用来表示模式，Node.EXCLUSIVE代表互斥锁，Node.SHARED代表共享锁。
 
-![添加节点图]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/ReetrantLock/images/addNode.png)
 
 ```java
 private Node addWaiter(Node mode) {
@@ -319,6 +319,8 @@ private final boolean parkAndCheckInterrupt() {
 
 ###### 4.2 解锁过程
 
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/ReetrantLock/images/unLock.png)
+
 ​		① 调用`ReetrantLock.unlock()`方法，这个方法内部调用了`sync.release()`
 
 ```java
@@ -346,6 +348,8 @@ public final boolean release(int arg) {
 ```
 
 ​		③ 本例中tryRelease()实际调用的Reentrant.Sync.tryRelease()方法，此方法主要将同步器的状态进行变更
+
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/ReetrantLock/images/wakeup.png)
 
 ```java
 protected final boolean tryRelease(int releases) {
