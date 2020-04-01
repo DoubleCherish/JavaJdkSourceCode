@@ -132,6 +132,8 @@ public abstract class AbstractExecutorService implements ExecutorService {
 
 ​        这个类是平常使用到的重点类，核心的方法都在这个类里面定义，接下来我们分析其核心要点
 
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/ThreadPool/image/state_threadpool.png)
+
 ```java
 public class ThreadPoolExecutor extends AbstractExecutorService {
     // 线程状态标志器
