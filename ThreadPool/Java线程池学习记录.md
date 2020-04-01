@@ -157,9 +157,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     private static final int TERMINATED =  3 << COUNT_BITS;
 
     // Packing and unpacking ctl
-    // 算出当前线程状态
+    // 算出当前线程池状态
     private static int runStateOf(int c)     { return c & ~CAPACITY; }
-    // 计算当前线程个数
+    // 计算当前worker个数
     private static int workerCountOf(int c)  { return c & CAPACITY; }
     // 算状态
     private static int ctlOf(int rs, int wc) { return rs | wc; }
@@ -233,8 +233,8 @@ public class Main {
          * task.  The call to addWorker atomically checks runState and
          * workerCount, and so prevents false alarms that would add
          * threads when it shouldn't, by returning false.
-         *     如果有小于corePoolSize的线程在运行，那么试图创建一个新的线程执行任务
-      	 * 调用addWorker方法时候会自动检查运行状态、线程数量，返回false警告
+         *     如果有小于corePoolSize的worker在运行，那么试图创建一个新的worker执行任务
+      	 * 调用addWorker方法时候会自动检查运行状态、线程数量，返回false警告时候
       	 * worker不应该被添加到线程池
          * 2. If a task can be successfully queued, then we still need
          * to double-check whether we should have added a thread
@@ -244,13 +244,14 @@ public class Main {
          * stopped, or start a new thread if there are none.
          *    如果一个任务被成功添加到队列，我们仍然需要检查我们是否应该添加这个线程（因		    		
 	 * 为从上次检查到现在线程池状态可能已经改变）因此我们重新检查状态，必要时进行回		
-         *  滚。要不然在入队成功并且worker为0时开启一个新线程
+         *  滚。或者在入队成功并且worker为0时开启一个新线程
          * 3. If we cannot queue task, then we try to add a new
          * thread.  If it fails, we know we are shut down or saturated
          * and so reject the task.
          *    如果我们不能让任务进入队列，那么我们尝试开启添加一个新的线程去执行任务，
          * 如果失败，那么我们知道线程池是关闭了或者饱和了，因此我们拒绝这个任务
          */
+	// 控制字段获取
         int c = ctl.get();
         // 策略1 
         if (workerCountOf(c) < corePoolSize) {
@@ -263,6 +264,7 @@ public class Main {
             c = ctl.get();
         }
         // 此处是策略2，线程运行情况下，将任务加入队列
+	// 这个队列有好几种选择，有容量为Integer.MAX_VALUE的也有容量为0的队列。
         if (isRunning(c) && workQueue.offer(command)) {
             int recheck = ctl.get();
             // 这里线程池是运行状态检查为非运行以后，remove()失败了，那感觉还是会执行			 				    // 任务，随后再理解下
@@ -270,7 +272,7 @@ public class Main {
                 reject(command);
             else if (workerCountOf(recheck) == 0)
                 addWorker(null, false);
-        }else if (!addWorker(command, false)) // 如果加入队列失败，则再调用一次
+        }else if (!addWorker(command, false)) // 如果加入队列失败，则再调用一次尝试将woker数量扩大到maximumPoolSize
             	reject(command);	      // addWorker()，策略3	
     }
     
@@ -561,7 +563,7 @@ private Runnable getTask() {
                     // 这个方法指定时间获取不到结果就会返回null
                     workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) :
                 	// worker数量小于corePoolSize时候直接调用这个方法获取任务，
-                	// 这个方法会一直卡在这里等待任务，有任务才返回
+                	// 这个方法会一直卡在这里等待任务，有任务才返回，底层调用了Condition.await()阻塞线程，等待Condition.signal()来唤醒			        // 由此可推断在这里阻塞线程，当workQueue里有元素时候会调用condition.signal()来唤醒阻塞的线程
                     workQueue.take();
                 // 如果任务不为空，则返回任务
                 if (r != null)
