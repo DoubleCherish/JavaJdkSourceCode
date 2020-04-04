@@ -147,7 +147,7 @@ public class MainTest {
 
 ​		这里借用我在记录HashMap时候画的table的简易结构图来说下ConcurrentHashMap的结构，两者基本结构类似。
 
-![]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/HashMap(JDK1.8)/image/table.png)
 
 ​		构造函数已经在上面贴出，这里不再赘述。我直接从`put()`方法开始切入。
 
@@ -602,12 +602,14 @@ private final void transfer(Node<K,V>[] tab, Node<K,V>[] nextTab) {
 
 **默认容量16，sizeCtl(阈值)为12，添加第12个元素时候的流程图**
 
-![]()
-
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/ConcurrentHashMap/images/fullresize.png)
 
 
 **普通链表节点转移示意图**
 
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/ConcurrentHashMap/images/for1.png)
+
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/ConcurrentHashMap/images/for2.png)
 
 
 ​		⑥ helpTransfer(Node<K,V>[] tab, Node<K,V> f)
