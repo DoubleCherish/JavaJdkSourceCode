@@ -82,7 +82,7 @@ public HashSet(Collection<? extends E> c) {
 
 ##### 3、根据示例看其方法源码
 
-​		下面逐个方法开始分析。[HashMap]([https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/HashMap(JDK1.8)/HashMap%EF%BC%88JDK1.8%EF%BC%89%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90.md](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/HashMap(JDK1.8)/HashMap（JDK1.8）源码剖析.md)源码可以看我另一篇详细的分析文章。
+​		下面逐个方法开始分析。[HashMap](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/HashMap(JDK1.8)/HashMap%EF%BC%88JDK1.8%EF%BC%89%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90.md)源码可以看我另一篇详细的分析文章。
 
 ​		① add(E e)
 
