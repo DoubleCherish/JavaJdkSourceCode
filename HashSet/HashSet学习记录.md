@@ -37,7 +37,7 @@ public class HashSetTest {
 
 **继承关系图**
 
-![HashSet](E:\随手记\HashSet\HashSet.png)
+![HashSet](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/HashSet/HashSet.png)
 
 **属性**
 
