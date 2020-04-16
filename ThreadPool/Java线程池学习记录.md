@@ -167,6 +167,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     private final BlockingQueue<Runnable> workQueue;
 	
     private final HashSet<Worker> workers = new HashSet<Worker>();
+    // 这个单独注释一下，这个遍历存储wokers这个集合中woker存在数量的峰值
     private int largestPoolSize;
     private volatile long keepAliveTime;
     private volatile boolean allowCoreThreadTimeOut;
@@ -298,9 +299,9 @@ public class Main {
             // Check if queue empty only if necessary.
             // 如果线程池的状态大于等于SHUTDOWN，意思是要关闭的情况
             // 且以下几种情况需要有一个为假的情况下就返回
-            // 1、rs>=SHUTDOWN这个条件满足，且rs != SHUTDOWN的情况下就返回，因为线程			   				    // 池此时可能即将要关闭了，不能添加新的任务了
-            // 2、rs==SHUTDOWN这个条件满足，并且要是firstTask != null那就返回，因为
-            // 此时SHUTDOWN后会拒绝新任务提交。要是firstTask==null的情况下还可以继		   			   
+            // 1、若rs>=SHUTDOWN这个条件满足，且rs != SHUTDOWN的情况下就返回，因为线程			   				    // 池此已经经历了shutdown相关的处理,即将关闭
+            // 2、若rs==SHUTDOWN这个条件满足，但是是firstTask != null那就返回，因为
+            // 在SHUTDOWN状态的线程池会拒绝新任务提交。要是firstTask==null的情况下还可以继		   			   
 	    // 续，这是线程池在SHUTDOWN情况下创建线程执行完剩余的任务，
             // 3、rs==SHUTDOWN && firstTask == null的条件下 workQueue.isEmpty()为			             
 	    // 真的条件下返回，因为queue为空的情况下就不需要再创建新线程去执行任务了
@@ -314,12 +315,12 @@ public class Main {
                 // 计算线程池线程个数
                 int wc = workerCountOf(c);
                 // 如果线程个数大于最大容量1^29限制就返回，或者线程在core标记为真时，			            
-		// 大于corePoolSize就返回，core为假时大于maximumPoolSize返回
+		// 大于corePoolSize就返回，不为core时大于maximumPoolSize返回
                 if (wc >= CAPACITY ||
                     wc >= (core ? corePoolSize : maximumPoolSize))
                     return false;
-                // 调用compareAndIncrementWorkerCount将ctl数值+1，若成功就跳出retry				            
-		// 循环
+                // 调用compareAndIncrementWorkerCount将ctl数值+1，若成功就跳出retry循环
+		// 失败可能是另外一个使用线程池的方法操作成功了
                 if (compareAndIncrementWorkerCount(c))
                     break retry;
                 // 上面增加线程计数器失败，重新获取ctl，判断当前线程池状态是否和进入方                           
@@ -331,8 +332,8 @@ public class Main {
                 // else CAS failed due to workerCount change; retry inner loop
             }
         }
-	// 通过上面状态参数被正确修改以后，下面线程即将被真正创建并执行
-        // 下面两个标记位标志线程是否开启、worker是否被添加
+	// 通过上面状态参数被正确修改以后，下面worker线程即将被真正创建并执行任务
+        // 下面两个标记位标志woker线程是否开启、worker是否被添加到wokerset
         boolean workerStarted = false;
         boolean workerAdded = false;
         Worker w = null;
@@ -342,7 +343,7 @@ public class Main {
             // 拿到Worker的成员变量thread
             final Thread t = w.thread;
             if (t != null) {
-                // 拿到当前线程池的锁，添加worker时候需要加锁
+                // 拿到当前线程池的锁，添加worker时候需要加锁，因为workset非线程安全
                 final ReentrantLock mainLock = this.mainLock;
                 mainLock.lock();
                 try {
@@ -352,9 +353,10 @@ public class Main {
                     // 获取当前线程状态
                     int rs = runStateOf(ctl.get());
 		    // 如果线程状态是Runing，或者SHUTDOWN且firstTask==null为真时候
-                    // （SHUTDOWN && firstTask==null代表线程池已经关闭，开启线程执行  				                                 // 完线程池在关闭之前添加的任务）
+                    // （SHUTDOWN && firstTask==null代表线程池已经关闭，再添加一个woker执行完任务队列的任务）
                     if (rs < SHUTDOWN ||
                         (rs == SHUTDOWN && firstTask == null)) {
+			// 如果执行任务之前线程已经开启了,就抛出线程状态非法异常
                         if (t.isAlive()) // precheck that t is startable
                             throw new IllegalThreadStateException();
                         // workers是一个HashSet<Worker>
@@ -483,8 +485,9 @@ final void runWorker(Worker w) {
                 // shutdownNow race while clearing interrupt
                 // 1、如果线程状态>=STOP且当前线程中断标志为false，那么中断当前线程
                 // 2、如果线程状态<STOP，调用Thread.interrupted()方法获取当前线程
-                //  中断标志并清除标志，若Thread.interrupted()返回true说明当前线程已			   		                 //  经中断，且再次获取状态>=STOP且当前线程中断状态标志为false，那么中				       
-		// 断当前线程
+                //  中断标志并清除标志，若Thread.interrupted()返回true说明当前线程已			   		            
+		//  经中断，且再次获取状态>=STOP且当前线程中断状态标志为false，那么中				       
+		// 断当前线程，有点绕口，后面得仔细理解下
                 if ((runStateAtLeast(ctl.get(), STOP) ||
                      (Thread.interrupted() &&
                       runStateAtLeast(ctl.get(), STOP))) &&
@@ -519,7 +522,7 @@ final void runWorker(Worker w) {
             // 将是否非正常完成标记设为false
             completedAbruptly = false;
         } finally {
-            // 最后处理Worker退出工作
+            // 处理Worker退出工作，比如允许大于核心线程数量的线程过期会调用此方法
             processWorkerExit(w, completedAbruptly);
         }
     }
@@ -620,7 +623,7 @@ private void processWorkerExit(Worker w, boolean completedAbruptly) {
     	// 如果状态<STOP,可能是SHUTDOWN或者RUNNING，判断要不要添加worker，要不然
     	// 什么都不做
         if (runStateLessThan(c, STOP)) {
-            // 如果非快速完成，就是worker正常执行完工作，没有事情可做时候
+            // 如果非完整完成，就是woker移除，但是wokerCount计数没有正常减1
             if (!completedAbruptly) {
                 // 取最小worker数量值
                 int min = allowCoreThreadTimeOut ? 0 : corePoolSize;
@@ -644,7 +647,8 @@ private void processWorkerExit(Worker w, boolean completedAbruptly) {
             int c = ctl.get();
             // 1、如果线程池处于运行状态，不需要终止，那么返回。
             // 2、如果线程池状态>=TIDYING，那么返回，说明线程池已经关闭或者正在关闭
-            // 3、如果线程池状态==SHUTDOWN且workQueue不为空，那么返回，得等到			   			   	     //    workQueue里面的任务执行完毕才能终止
+            // 3、如果线程池状态==SHUTDOWN且workQueue不为空，那么返回，得等到
+	    // workQueue里面的任务执行完毕才能终止
             if (isRunning(c) ||
                 runStateAtLeast(c, TIDYING) ||
                 (runStateOf(c) == SHUTDOWN && ! workQueue.isEmpty()))
