@@ -164,6 +164,16 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     // 算状态
     private static int ctlOf(int rs, int wc) { return rs | wc; }
     
+    private final BlockingQueue<Runnable> workQueue;
+	
+    private final HashSet<Worker> workers = new HashSet<Worker>();
+    private int largestPoolSize;
+    private volatile long keepAliveTime;
+    private volatile boolean allowCoreThreadTimeOut;
+    private volatile int corePoolSize;
+    private volatile int maximumPoolSize;
+    
+    
     // 选最终的构造函数看一看
     // 参数从前到后分别是：
     //					核心池大小
