@@ -36,7 +36,7 @@ public class Test {
 
 **继承结构**
 
-
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/LinkedList/image/LinkedList.png)
 
 **构造函数**
 
