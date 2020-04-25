@@ -10,6 +10,8 @@
 
 ​		从名字可以看出，CMS是基于标记--清除算法实现的，主要有以下几个阶段：
 
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/JVM/CMS/GC.PNG)
+
 * 初始标记（Stop The World）
 * 并发标记
 * 重新标记（Stop The World）
