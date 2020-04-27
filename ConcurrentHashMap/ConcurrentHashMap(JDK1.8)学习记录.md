@@ -118,7 +118,7 @@ static final <K,V> Node<K,V> tabAt(Node<K,V>[] tab, int i) {
 static final <K,V> boolean casTabAt(Node<K,V>[] tab, int i,Node<K,V> c, Node<K,V> v) {
      return U.compareAndSwapObject(tab, ((long)i << ASHIFT) + ABASE, c, v);
 }
-CAS机制i位置元素赋值
+// CAS机制i位置元素赋值 treefiyBin时候使用
 static final <K,V> void setTabAt(Node<K,V>[] tab, int i, Node<K,V> v) {
     U.putObjectVolatile(tab, ((long)i << ASHIFT) + ABASE, v);
 }
