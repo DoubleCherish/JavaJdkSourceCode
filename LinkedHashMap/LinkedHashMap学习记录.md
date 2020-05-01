@@ -35,11 +35,13 @@ public class LinkedHashMapTest {
 
 **output result**
 
-![]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/LinkedHashMap/images/example_result.PNG)
 
 ##### 2、LinkedHashMap构造函数及属性
 
 **类关系图**
+
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/LinkedHashMap/images/LinkedHashMap.png)
 
 **构造函数**
 
@@ -89,7 +91,7 @@ static class Entry<K,V> extends HashMap.Node<K,V> {
 
 **Entry的继承结构图**
 
-![]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/LinkedHashMap/images/LinkedHashMap_Entry.png)
 
 由Entry结构和before和after属性可知，LinkedHashMap节点之间有着双向链表的关系。
 
