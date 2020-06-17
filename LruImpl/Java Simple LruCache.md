@@ -72,6 +72,6 @@ class TestThread implements Runnable{
 
 ```
 
-![]()
+![](https://github.com/DoubleCherish/JavaJdkSourceCode/blob/master/LruImpl/images/result.png)
 
 #标签#随手记
